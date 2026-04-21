@@ -24,7 +24,7 @@ pipeline {
         stage('Linter/Syntax Check') {
             steps {
                 // A quick check to ensure there are no syntax errors in your JS files
-                sh 'node --check server.js'
+                sh 'node --check Largest.js'
             }
         }
 
