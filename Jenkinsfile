@@ -1,58 +1,38 @@
 pipeline {
     agent any
 
+    environment {
+        // This ensures Node.js is available in the Jenkins environment
+        NODEJS_HOME = tool 'node' 
+    }
+
     stages {
         stage('Checkout') {
             steps {
-                git 'https://github.com/your-repo.git'
+                // Pulls the latest code from your GitHub
+                checkout scm
             }
         }
 
-        stage('Build') {
+        stage('Install Dependencies') {
             steps {
-                sh 'mvn clean compile'  // or gradle build, npm install
+                // Installs the modules like Express, Mongoose, and Socket.io
+                sh 'npm install'
             }
         }
 
-        stage('Unit Tests') {
+        stage('Linter/Syntax Check') {
             steps {
-                sh 'mvn test'
-                publishHTML target: [
-                    reportDir: 'target/surefire-reports',
-                    reportFiles: 'index.html',
-                    reportName: 'Test Report'
-                ]
+                // A quick check to ensure there are no syntax errors in your JS files
+                sh 'node --check server.js'
             }
         }
 
-        stage('Integration Tests') {
+        stage('Run Automated Tests') {
             steps {
-                sh './scripts/integration-test.sh'
+                // This triggers the test script defined in your package.json
+                sh 'npm test'
             }
-        }
-
-        stage('E2E Tests') {
-            steps {
-                sh 'npm run e2e'  // or selenium, cypress, etc.
-            }
-        }
-    }
-
-    post {
-        always {
-            junit 'target/surefire-reports/*.xml'  // Parse test results
-            publishHTML target: [
-                reportDir: 'test-results',
-                reportFiles: 'index.html',
-                reportName: 'Test Results'
-            ]
-        }
-        failure {
-            emailext(
-                subject: "Build Failed: ${env.JOB_NAME}",
-                body: "Tests failed. Check console output",
-                to: "${env.CHANGE_AUTHOR_EMAIL}"
-            )
         }
     }
 }
