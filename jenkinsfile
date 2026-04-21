@@ -1,0 +1,17 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git 'https://github.com/Shashi3562/NodeJS.git'
+            }
+        }
+
+        stage('Run Script') {
+            steps {
+                sh 'node app.js'
+            }
+        }
+    }
+}
